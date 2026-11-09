@@ -363,7 +363,7 @@ function stopOnlineAudio() {
 function speechChunks(text, limit = 180) {
   const chunks = [];
   let chunk = "";
-  for (const word of text.match(/\\S+\\s*/gu) || [text]) {
+  for (const word of text.match(/\S+\s*/gu) || [text]) {
     if (chunk && Array.from(chunk + word).length > limit) { chunks.push(chunk.trim()); chunk = ""; }
     const chars = Array.from(word);
     while (chars.length > limit) {
@@ -383,8 +383,8 @@ async function speakOnline(text, languageTag) {
   try {
     for (const chunk of speechChunks(text)) {
       if (runId !== onlineAudioRun) return;
-      const query = new URLSearchParams({ ie: "UTF-8", client: "tw-ob", tl: languageTag || outputLanguage, ttsspeed: String(S.rate), q: chunk });
-      const audio = new Audio("https://translate.google.com/translate_tts?" + query.toString());
+      const query = new URLSearchParams({ tl: languageTag || outputLanguage, speed: String(S.rate), q: chunk });
+      const audio = new Audio("/api/tts?" + query.toString());
       audio.volume = Math.max(0, Math.min(1, +S.vol));
       audio.preload = "auto";
       onlineAudio = audio;
