@@ -18,11 +18,11 @@ Send Claude's response to a lightweight page, then read it on screen or play it 
 
 In Claude on the web, open **Settings** → **Customize**. In the connectors area, choose **Add** → **Add custom connector**.
 
-![Open Claude Settings and select Customize](docs/claude-setup/01-settings.png)
+| Open Claude Settings and select Customize | Choose Add custom connector |
+|:--:|:--:|
+| ![Open Claude Settings and select Customize](docs/claude-setup/01-settings.png) | ![Choose Add custom connector](docs/claude-setup/02-add-connector.png) |
 
-Choose **Add custom connector**.
-
-![Choose Add custom connector](docs/claude-setup/02-add-connector.png)
+In **Customize**, choose **Add** → **Add custom connector**.
 
 Enter a name such as `ZBrowerMod` and this server URL:
 
