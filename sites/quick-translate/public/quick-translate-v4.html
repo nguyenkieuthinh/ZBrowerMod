@@ -36,6 +36,8 @@ select{width:100%;appearance:none;-webkit-appearance:none;background:var(--card)
   background:var(--card);color:var(--ink);cursor:pointer;padding:0;transition:background .15s,color .15s,border-color .15s}
 .icon:hover{border-color:var(--accent);color:var(--accent)}
 .icon.on{background:var(--accent);color:var(--accent-ink);border-color:var(--accent)}
+.icon.listen{display:flex;gap:8px;width:auto;padding:0 14px;border-radius:999px;background:var(--accent);color:var(--accent-ink);
+  border-color:var(--accent);font:600 14px var(--sans)}
 .ic{width:19px;height:19px;fill:none;stroke:currentColor;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round}
 
 .panes{display:grid;grid-template-columns:1fr 1fr;gap:14px}
@@ -104,7 +106,7 @@ footer{margin-top:18px;font-size:13px;color:var(--muted)}
     <div class="pane out">
       <div class="text empty" id="dst" aria-live="polite">Your translation will appear here</div>
       <div class="tools">
-        <button class="icon" id="say" title="Listen to translation" aria-label="Listen to translation"><svg class="ic"><use href="#i-say"/></svg></button>
+        <button class="icon listen" id="say" title="Listen to text" aria-label="Listen to text"><svg class="ic"><use href="#i-say"/></svg><span>Listen</span></button>
         <button class="icon" id="copy" title="Copy translation" aria-label="Copy translation"><svg class="ic"><use href="#i-copy"/></svg></button>
         <span class="meta" id="status"></span>
       </div>
@@ -153,7 +155,9 @@ footer{margin-top:18px;font-size:13px;color:var(--muted)}
   <footer>Translations are provided by MyMemory (free, with daily limits). Speech uses voices available on your device.</footer>
 </main>
 
-<script>
+<script type="module">
+import { bindVoiceUpdates, speakText } from "/api/speech";
+
 const $ = s => document.querySelector(s);
 const LANGS = [
   ["vi","Vietnamese","vi-VN"],["en","English","en-US"],["ja","Japanese","ja-JP"],["ko","Korean","ko-KR"],
@@ -249,9 +253,9 @@ $("#copy").onclick = async () => {
 
 /* ---------- Speech ---------- */
 let voices = [];
-function fillVoices(languageTag = outputLanguage) {
-  voices = speechSynthesis.getVoices();
-  const pre = (languageTag || info(S.to)[2]).split("-")[0].toLowerCase();
+function fillVoices(nextVoices = speechSynthesis.getVoices()) {
+  voices = nextVoices;
+  const pre = (outputLanguage || info(S.to)[2]).split("-")[0].toLowerCase();
   const list = voices.filter(v => v.lang.toLowerCase().startsWith(pre));
   const sel = $("#voice");
   sel.innerHTML = list.length
@@ -262,23 +266,44 @@ function fillVoices(languageTag = outputLanguage) {
   else if (list.length) S.voice[S.to] = sel.value;
 }
 if ("speechSynthesis" in window) {
-  speechSynthesis.onvoiceschanged = fillVoices;
-  fillVoices();
+  bindVoiceUpdates(speechSynthesis, fillVoices);
 } else {
   $("#say").style.display = "none"; $("#test").disabled = true;
 }
 
 function speak(text, languageTag = outputLanguage) {
-  if (!text || !("speechSynthesis" in window)) return;
-  speechSynthesis.cancel();
-  const u = new SpeechSynthesisUtterance(text);
-  const pre = (languageTag || info(S.to)[2]).split("-")[0].toLowerCase();
-  const v = voices.find(x => x.voiceURI === S.voice[S.to] && x.lang.toLowerCase().startsWith(pre))
-    || voices.find(x => x.lang.toLowerCase().startsWith(pre));
-  u.lang = v ? v.lang : languageTag || info(S.to)[2];
-  if (v) u.voice = v;
-  u.rate = +S.rate; u.pitch = +S.pitch; u.volume = +S.vol;
-  speechSynthesis.speak(u);
+  if (!("speechSynthesis" in window)) {
+    status("Speech is unavailable in this browser. Try Chrome, Edge, or Safari.", true);
+    return;
+  }
+  if (!text?.trim()) {
+    status("There is no text to read yet.", true);
+    return;
+  }
+  const started = speakText({
+    synth: speechSynthesis,
+    createUtterance: value => new SpeechSynthesisUtterance(value),
+    text,
+    languageTag: languageTag || info(S.to)[2],
+    selectedVoice: S.voice[S.to],
+    voices,
+    rate: S.rate,
+    pitch: S.pitch,
+    volume: S.vol,
+    onState: (state, error) => {
+      if (state === "playing") status("Speaking aloud…");
+      else if (state === "finished") status("Finished playing.");
+      else if (state === "error") {
+        const messages = {
+          "voice-unavailable": "No voice is available for this language. Choose another voice in Voice settings.",
+          "not-allowed": "Playback was blocked. Tap Listen again and check your browser sound permissions.",
+          "audio-busy": "Audio is busy. Wait a moment, then tap Listen again.",
+        };
+        status(messages[error] || "Could not play audio. Check your device media volume and Voice settings.", true);
+      }
+    },
+  });
+  if (!started) status("There is no text to read yet.", true);
 }
 
 $("#voice").onchange = e => { S.voice[S.to] = e.target.value; save(); };
@@ -366,7 +391,7 @@ async function pollChannel(code) {
           $("#to").value = S.to;
           save();
         }
-        fillVoices(outputLanguage);
+        fillVoices();
       }
       channelMessage("New text from Claude. Press the speaker button to listen.");
     }

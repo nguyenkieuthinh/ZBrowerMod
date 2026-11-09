@@ -21,7 +21,7 @@ Send Claude's response to a lightweight page, then read it on screen or play it 
    `https://zbrower-quick-translate.inwardsugar4.chatgpt.site/claude-mcp`
 
 4. Start a Claude chat and ask it to use **Display text in Quick Translate**. Share the channel code and the text you want sent.
-5. The page updates automatically. Choose a voice language and press the speaker button to listen.
+5. The page updates automatically. Choose a voice language and press **Listen**.
 
 ## How it works
 
@@ -34,6 +34,10 @@ Quick Translate is a small companion display for reading and listening to Claude
 - **Short retention:** channels expire after 24 hours; their latest message is removed after 15 minutes.
 
 Treat the channel code like a password: anyone who has it can send text to that page. The service stores a hash of the code, not the code itself.
+
+### No sound?
+
+Open the page directly in a browser tab, press **Listen**, and check your device's media volume. If the page reports that a voice is unavailable, choose another voice under **Voice settings** or install a speech voice for that language on your device.
 
 ## Run locally
 
