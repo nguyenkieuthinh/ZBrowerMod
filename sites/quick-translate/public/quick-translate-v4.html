@@ -156,6 +156,7 @@ footer{margin-top:18px;font-size:12px;color:var(--muted);text-align:center}
 
   <details class="voice">
     <summary>Voice settings</summary>
+    <p class="sub">Listen uses Google Translate online speech. Speed and volume apply to Listen; voice choice and pitch apply to Preview voice.</p>
     <div class="grid">
       <label>Voice
         <select id="voice"></select>
@@ -173,7 +174,7 @@ footer{margin-top:18px;font-size:12px;color:var(--muted);text-align:center}
     </div>
   </details>
 
-  <footer>Translations are provided by MyMemory (free, with daily limits). Speech uses voices available on your device.</footer>
+  <footer>Translations are provided by MyMemory (free, with daily limits). Listen uses Google Translate online speech; text you play is sent to Google to create audio. Preview voice uses your browser.</footer>
 </main>
 
 <script type="module">
@@ -350,6 +351,62 @@ function speak(text, languageTag = outputLanguage) {
   if (!started) status("There is no text to read yet.", true);
 }
 
+let onlineAudio = null;
+let onlineAudioRun = 0;
+let finishOnlineChunk = null;
+function stopOnlineAudio() {
+  onlineAudioRun++;
+  if (onlineAudio) { onlineAudio.pause(); onlineAudio.currentTime = 0; onlineAudio = null; }
+  finishOnlineChunk?.();
+  finishOnlineChunk = null;
+}
+function speechChunks(text, limit = 180) {
+  const chunks = [];
+  let chunk = "";
+  for (const word of text.match(/\\S+\\s*/gu) || [text]) {
+    if (chunk && Array.from(chunk + word).length > limit) { chunks.push(chunk.trim()); chunk = ""; }
+    const chars = Array.from(word);
+    while (chars.length > limit) {
+      if (chunk) { chunks.push(chunk.trim()); chunk = ""; }
+      chunks.push(chars.splice(0, limit).join(""));
+    }
+    chunk += chars.join("");
+  }
+  if (chunk.trim()) chunks.push(chunk.trim());
+  return chunks;
+}
+async function speakOnline(text, languageTag) {
+  stopOnlineAudio();
+  const runId = onlineAudioRun;
+  speechSynthesis.cancel();
+  status("Preparing online speech…");
+  try {
+    for (const chunk of speechChunks(text)) {
+      if (runId !== onlineAudioRun) return;
+      const query = new URLSearchParams({ ie: "UTF-8", client: "tw-ob", tl: languageTag || outputLanguage, ttsspeed: String(S.rate), q: chunk });
+      const audio = new Audio("https://translate.google.com/translate_tts?" + query.toString());
+      audio.volume = Math.max(0, Math.min(1, +S.vol));
+      audio.preload = "auto";
+      onlineAudio = audio;
+      const ended = new Promise((resolve, reject) => {
+        finishOnlineChunk = resolve;
+        audio.onended = resolve;
+        audio.onerror = () => reject(new Error("Online speech audio could not be loaded."));
+      });
+      status("Speaking aloud…");
+      await audio.play();
+      await ended;
+      finishOnlineChunk = null;
+    }
+    if (runId === onlineAudioRun) status("Finished playing.");
+  } catch (error) {
+    if (runId !== onlineAudioRun) return;
+    stopOnlineAudio();
+    status("Online speech is unavailable. Trying your browser voice…");
+    speak(text, languageTag);
+  }
+}
+
 $("#voice").onchange = e => { S.voice[S.to] = e.target.value; save(); };
 for (const k of ["rate", "pitch", "vol"]) {
   const el = $("#" + k), lab = $("#" + k + "V");
@@ -365,7 +422,7 @@ $("#say").onclick = () => {
     return;
   }
   const inputLanguage = info(S.from === "auto" ? S.to : S.from)[2];
-  speak(textToRead, hasTranslation ? outputLanguage : inputLanguage);
+  speakOnline(textToRead, hasTranslation ? outputLanguage : inputLanguage);
 };
 $("#test").onclick = () => {
   const t = dst.classList.contains("empty") ? "" : dst.textContent;

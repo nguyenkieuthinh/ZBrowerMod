@@ -59,7 +59,7 @@ Quick Translate is a small companion display for reading and listening to Claude
 - **No Quick Translate account:** open the public page and create a temporary channel.
 - **Private pairing code:** each channel uses a random eight-character code.
 - **Live delivery:** Claude sends text through the remote MCP connector and the page checks for updates.
-- **Listen aloud:** speech uses your browser's built-in text-to-speech voices.
+- **Listen aloud:** the Listen button streams speech from Google Translate. Text you play is sent to Google to create the audio. **Preview voice** in Voice settings uses your browser's built-in voices.
 - **Short retention:** channels expire after 24 hours; their latest message is removed after 15 minutes.
 
 Treat the channel code like a password: anyone who has it can send text to that page. The service stores a hash of the code, not the code itself.
