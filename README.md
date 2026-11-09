@@ -1,20 +1,43 @@
+<div align="center">
+
 # Quick Translate
 
-Quick Translate pairs a web page with a Claude custom connector. Claude sends text to a temporary channel; the page displays it and can read it aloud with the browser's speech synthesis.
+### Let Claude write. Listen from your browser.
 
-## Use
+Send Claude's response to a lightweight page, then read it on screen or play it aloud with your browser's voice.
 
-1. Open the deployed Quick Translate page and create a channel.
-2. Copy its eight-character code.
-3. In Claude, add a custom remote connector using `https://zbrower-quick-translate.inwardsugar4.chatgpt.site/mcp`.
-4. Ask Claude to use **Display text in Quick Translate**, providing the channel code and text.
-5. Return to the page and press the speaker button to listen.
+[Open Quick Translate](https://zbrower-quick-translate.inwardsugar4.chatgpt.site) · [Connect Claude](#connect-claude) · [How it works](#how-it-works)
 
-Each channel code is a temporary bearer secret. Anyone who knows it can send text to that page. Channels expire after 24 hours and the latest text expires after 15 minutes. The service stores only a hash of the channel code.
+![Illustrative preview of the Quick Translate page paired with Claude](sites/quick-translate/public/readme-preview.png)
 
-## Development
+</div>
 
-The hosted application is in [`sites/quick-translate`](sites/quick-translate). It uses Cloudflare Workers and D1, with the schema migration in `sites/quick-translate/drizzle/`.
+## Connect Claude
+
+1. Open [Quick Translate](https://zbrower-quick-translate.inwardsugar4.chatgpt.site) and select **Create a channel**.
+2. Copy the eight-character channel code shown on the page.
+3. In Claude, add a custom remote connector with this URL:
+
+   `https://zbrower-quick-translate.inwardsugar4.chatgpt.site/mcp`
+
+4. Start a Claude chat and ask it to use **Display text in Quick Translate**. Share the channel code and the text you want sent.
+5. The page updates automatically. Choose a voice language and press the speaker button to listen.
+
+## How it works
+
+Quick Translate is a small companion display for reading and listening to Claude responses. It does not translate text automatically; Claude can translate it when you ask, then send the result to your paired page.
+
+- **No Quick Translate account:** open the public page and create a temporary channel.
+- **Private pairing code:** each channel uses a random eight-character code.
+- **Live delivery:** Claude sends text through the remote MCP connector and the page checks for updates.
+- **Listen aloud:** speech uses your browser's built-in text-to-speech voices.
+- **Short retention:** channels expire after 24 hours; their latest message is removed after 15 minutes.
+
+Treat the channel code like a password: anyone who has it can send text to that page. The service stores a hash of the code, not the code itself.
+
+## Run locally
+
+The hosted application is in [`sites/quick-translate`](sites/quick-translate). It uses Cloudflare Workers and D1.
 
 ```sh
 cd sites/quick-translate
@@ -23,4 +46,4 @@ npm run build
 node --test lib/channel-store.test.js
 ```
 
-The site must be deployed over HTTPS for Claude's remote MCP connection. Add the `/mcp` URL as a custom connector in Claude; the site does not require a Quick Translate account.
+To connect Claude, the MCP endpoint must be deployed at a public HTTPS URL. See the [implementation notes](docs/superpowers/specs/2026-11-09-claude-translate-display-design.md) for architecture details.
