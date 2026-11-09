@@ -301,7 +301,7 @@ const channelStatus = $("#channelStatus");
 const channelButton = $("#createChannel");
 const codeRow = $("#codeRow");
 let activeCode = null, lastReceivedAt = null, pollTimer = null;
-$("#mcpUrl").textContent = new URL("/mcp", location.origin).href;
+$("#mcpUrl").textContent = new URL("/claude-mcp", location.origin).href;
 
 function channelMessage(message, isError = false) {
   channelStatus.textContent = message;

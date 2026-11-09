@@ -32,7 +32,7 @@ The repository contains a static translation page in `index.html`. It accepts te
 ## Implementation direction
 
 - Host the public app with the available Sites platform using its Worker-backed web runtime and D1 for shared channel state. Keep the existing lightweight HTML/CSS/JS experience; use only the framework/runtime pieces required by the hosting starter.
-- Expose Claude's remote MCP endpoint at `/mcp` using Streamable HTTP and the official MCP TypeScript SDK. This is a Claude-compatible remote MCP endpoint, not the Sites-generated ChatGPT plugin endpoint.
+- Expose Claude's remote MCP endpoint at `/claude-mcp` using Streamable HTTP and the official MCP TypeScript SDK. This is a Claude-compatible remote MCP endpoint, not the Sites-generated ChatGPT plugin endpoint.
 - Generate channel codes server-side with a cryptographically secure random generator. Codes are exactly eight uppercase alphanumeric characters, excluding visually ambiguous characters. A channel code is a bearer secret: anyone who knows it can access that channel.
 - Do not require app accounts, OAuth, or a connector-wide bearer token. Store the current text per channel, not a message history. Store channel state in D1 so multiple Worker instances can serve the same page and Claude calls.
 - A channel expires after 24 hours without activity. Its current text expires 15 minutes after the last update. Do not log text or channel codes. Limit input to 5000 characters, reject blank text and invalid language tags, and rate-limit channel creation and tool calls to reduce code guessing and spam.

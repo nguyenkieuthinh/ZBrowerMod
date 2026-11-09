@@ -6,7 +6,7 @@ const ALLOWED_HOSTS = [
   "zbrower-quick-translate.inwardsugar4.chatgpt.site",
   "localhost",
   "127.0.0.1",
-  "::1",
+  "[::1]",
 ];
 
 async function handle(request: Request) {
@@ -16,8 +16,7 @@ async function handle(request: Request) {
     return Response.json({ error: "Channel storage is unavailable." }, { status: 503 });
   }
 
-  const handler = createQuickTranslateMcpHandler(env.DB);
-  return handler.fetch(request);
+  return createQuickTranslateMcpHandler(env.DB).fetch(request);
 }
 
 export const POST = handle;

@@ -18,7 +18,7 @@ Send Claude's response to a lightweight page, then read it on screen or play it 
 2. Copy the eight-character channel code shown on the page.
 3. In Claude, add a custom remote connector with this URL:
 
-   `https://zbrower-quick-translate.inwardsugar4.chatgpt.site/mcp`
+   `https://zbrower-quick-translate.inwardsugar4.chatgpt.site/claude-mcp`
 
 4. Start a Claude chat and ask it to use **Display text in Quick Translate**. Share the channel code and the text you want sent.
 5. The page updates automatically. Choose a voice language and press the speaker button to listen.

@@ -19,7 +19,7 @@
 - Channel idle expiry is 24 hours; latest text expiry is 15 minutes; text is limited to 5000 characters.
 - Do not log channel codes or text content.
 - Do not push until the source and history have been checked for accidental secrets; then make `nguyenkieuthinh/ZBrowerMod` public and push the implementation.
-- Publish the Sites app with public audience; the Claude MCP endpoint must use Streamable HTTP at `/mcp` and remain separate from Sites' ChatGPT plugin capability.
+- Publish the Sites app with public audience; the Claude MCP endpoint must use Streamable HTTP at `/claude-mcp` and remain separate from Sites' ChatGPT plugin capability.
 
 ## Review Focus
 
@@ -69,7 +69,7 @@
 **Files:**
 - Create: `sites/quick-translate/app/api/channels/route.ts`
 - Create: `sites/quick-translate/app/api/channel/latest/route.ts`
-- Create: `sites/quick-translate/app/mcp/route.ts`
+- Create: `sites/quick-translate/app/claude-mcp/route.ts`
 - Create: `sites/quick-translate/lib/channel-store.js`
 - Create: `sites/quick-translate/lib/mcp.ts`
 - Create: `sites/quick-translate/lib/channel-store.test.js`
@@ -82,7 +82,7 @@
 - [ ] Write `node:test` unit tests for secure code generation, uniqueness handling, input validation, TTL, and channel isolation; run `node --test lib/channel-store.test.js` and confirm expected initial failures.
 - [ ] Implement D1 channel creation with cryptographically secure 8-character codes; retry collisions and expire channels after 24 hours of inactivity.
 - [ ] Implement `POST /api/channels` and `POST /api/channel/latest` with the code in the JSON body (never in a URL); expire current text after 15 minutes and never return data for an unknown or expired code.
-- [ ] Implement the `/mcp` Streamable HTTP handler with the official MCP TypeScript SDK and only the `display_text` tool.
+- [ ] Implement the `/claude-mcp` Streamable HTTP handler with the official MCP TypeScript SDK and only the `display_text` tool.
 - [ ] Validate text length (1–5000 characters), reject blank text and invalid BCP 47 language tags, use parameterized D1 statements, and avoid logging text/code.
 - [ ] Add bounded rate limiting for channel creation and tool calls; ensure throttling a shared Claude egress IP does not block unrelated channel codes.
 - [ ] Run `node --test lib/channel-store.test.js` and verify an MCP Inspector call updates only the matching channel.
@@ -98,7 +98,7 @@
 - Produces: exact local start commands, required environment names, channel code lifecycle, public connector URL instructions, and data expiry/privacy notes.
 
 - [ ] Document the local app start command and how to create a channel.
-- [ ] Document adding the public `/mcp` URL as a custom connector in Claude and sharing the page's channel code with Claude.
+- [ ] Document adding the public `/claude-mcp` URL as a custom connector in Claude and sharing the page's channel code with Claude.
 - [ ] State that anyone with the code can use that channel, text expires after 15 minutes, and an app account is not required.
 - [ ] Keep every user-facing page string and user instruction in English.
 
@@ -108,7 +108,7 @@
 - Finalize: `.openai/hosting.json`, migrations, app routes, README, and root repository contents.
 
 **Interfaces:**
-- Produces: public GitHub source, public Sites URL, public `/mcp` endpoint, and a ready-to-add custom connector URL.
+- Produces: public GitHub source, public Sites URL, public `/claude-mcp` endpoint, and a ready-to-add custom connector URL.
 
 - [ ] Run the project build, focused tests, MCP Inspector checks, and a local browser/manual flow using two channel codes.
 - [ ] Review all tracked files and Git history for secrets or personal data before making the repository public.
