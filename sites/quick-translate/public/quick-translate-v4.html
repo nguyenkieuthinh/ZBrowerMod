@@ -315,6 +315,10 @@ function speak(text, languageTag = outputLanguage) {
     status("Speech is unavailable in this browser. Try Chrome, Edge, or Safari.", true);
     return;
   }
+  if (+S.vol === 0) {
+    status("Voice volume is set to 0. Open Voice settings and raise it, then press Listen again.", true);
+    return;
+  }
   if (!text?.trim()) {
     status("There is no text to read yet.", true);
     return;
@@ -351,7 +355,13 @@ for (const k of ["rate", "pitch", "vol"]) {
   el.value = S[k]; lab.textContent = (+S[k]).toFixed(2).replace(/\.?0+$/, "");
   el.oninput = () => { S[k] = el.value; lab.textContent = (+el.value).toFixed(2).replace(/\.?0+$/, ""); save(); };
 }
-$("#say").onclick = () => { if (!dst.classList.contains("empty")) speak(dst.textContent); };
+$("#say").onclick = () => {
+  if (dst.classList.contains("empty")) {
+    status("There is no text to read yet. Wait for the translation or ask Claude to send text.", true);
+    return;
+  }
+  speak(dst.textContent);
+};
 $("#test").onclick = () => {
   const t = dst.classList.contains("empty") ? "" : dst.textContent;
   speak(t || { vi: "Hello, this is a voice test.", en: "Hello, this is a voice test.", ja: "Hello, this is a voice test.",
