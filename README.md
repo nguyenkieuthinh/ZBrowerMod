@@ -14,14 +14,43 @@ Send Claude's response to a lightweight page, then read it on screen or play it 
 
 ## Connect Claude
 
-1. Open [Quick Translate](https://zbrower-quick-translate.inwardsugar4.chatgpt.site) and select **Create a channel**.
+### Add the connector in Claude
+
+In Claude on the web, open **Settings** → **Customize**. In the connectors area, choose **Add** → **Add custom connector**.
+
+![Open Claude Settings and select Customize](docs/claude-setup/01-settings.png)
+
+Choose **Add custom connector**.
+
+![Choose Add custom connector](docs/claude-setup/02-add-connector.png)
+
+Enter a name such as `ZBrowerMod` and this server URL:
+
+`https://zbrower-quick-translate.inwardsugar4.chatgpt.site/claude-mcp`
+
+Then select **Continue**.
+
+![Enter the connector name and MCP server URL](docs/claude-setup/03-enter-server-url.png)
+
+On the authentication screen, leave **No sign-in** selected and click **Add**. This connector uses a channel code to route messages instead of a Claude account sign-in.
+
+![Select No sign-in and add the connector](docs/claude-setup/04-no-sign-in.png)
+
+Open the new `ZBrowerMod` connector and click **Connect**. When Claude shows it as connected, the setup is complete.
+
+![Connect ZBrowerMod](docs/claude-setup/05-connect.png)
+
+![ZBrowerMod connector connected](docs/claude-setup/06-connected.png)
+
+### Send text to Quick Translate
+
+1. Open [Quick Translate](https://zbrower-quick-translate.inwardsugar4.chatgpt.site) in a browser tab and create a channel.
 2. Copy the eight-character channel code shown on the page.
-3. In Claude, add a custom remote connector with this URL:
+3. In a Claude chat, enable the `ZBrowerMod` connector if Claude asks which connectors to use.
+4. Ask Claude to send text to Quick Translate using the **Display text in Quick Translate** tool. Include the channel code and the exact text (for example: “Send `hello` to Quick Translate using channel `ABCD1234`.” Replace that example code with your own).
+5. The page receives the text. Select the voice language and press **Listen** to hear it.
 
-   `https://zbrower-quick-translate.inwardsugar4.chatgpt.site/claude-mcp`
-
-4. Start a Claude chat and ask it to use **Display text in Quick Translate**. Share the channel code and the text you want sent.
-5. The page updates automatically. Choose a voice language and press **Listen**.
+If Claude says it cannot find the tool, check **Settings** → **Customize** and confirm `ZBrowerMod` is connected, then start a new chat and enable the connector for that chat.
 
 ## How it works
 

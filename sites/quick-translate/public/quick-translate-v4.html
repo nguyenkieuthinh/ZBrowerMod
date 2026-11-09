@@ -248,6 +248,7 @@ function status(m, err) { const s = $("#status"); s.textContent = m || ""; s.cla
 function schedule() {
   clearTimeout(timer);
   $("#count").textContent = src.value.length + "/5000";
+  if (src.value.trim()) status("Updating translation…");
   timer = setTimeout(run, 600);
 }
 
@@ -356,11 +357,15 @@ for (const k of ["rate", "pitch", "vol"]) {
   el.oninput = () => { S[k] = el.value; lab.textContent = (+el.value).toFixed(2).replace(/\.?0+$/, ""); save(); };
 }
 $("#say").onclick = () => {
-  if (dst.classList.contains("empty")) {
+  const translationPending = ["Translating…", "Updating translation…"].includes($("#status").textContent);
+  const hasTranslation = !dst.classList.contains("empty") && !translationPending;
+  const textToRead = hasTranslation ? dst.textContent : src.value.trim();
+  if (!textToRead) {
     status("There is no text to read yet. Wait for the translation or ask Claude to send text.", true);
     return;
   }
-  speak(dst.textContent);
+  const inputLanguage = info(S.from === "auto" ? S.to : S.from)[2];
+  speak(textToRead, hasTranslation ? outputLanguage : inputLanguage);
 };
 $("#test").onclick = () => {
   const t = dst.classList.contains("empty") ? "" : dst.textContent;
